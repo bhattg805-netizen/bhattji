@@ -1,0 +1,42 @@
+# robots.txt for YouthSMM
+User-agent: *
+Allow: /
+Allow: /favicon*
+Allow: /apple-touch-icon*
+Allow: /*.ico
+Allow: /*.png
+Allow: /*.svg
+Allow: /site.webmanifest
+Allow: /services
+Allow: /blog
+Allow: /blog/*
+Allow: /api-docs
+Allow: /about
+Allow: /faq
+Allow: /contact
+Allow: /terms
+Allow: /privacy
+Allow: /child-panels
+Allow: /affiliates
+
+# Explicitly allow Google Search & Image crawlers to index favicon and brand assets
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+# Disallow private user, admin, auth and API backend routes
+Disallow: /admin
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /login
+Disallow: /register
+Disallow: /signin
+Disallow: /signup
+
+# Sitemap Location
+Sitemap: https://www.youthsmm.com/sitemap.xml

@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Red Gradient -->
+    <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF334B" />
+      <stop offset="40%" stop-color="#E60023" />
+      <stop offset="100%" stop-color="#B80018" />
+    </linearGradient>
+
+    <!-- Outer Glow Gradient -->
+    <radialGradient id="outerGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="70%" stop-color="#FF4D63" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#B80018" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Golden Nucleus Gradient -->
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF59D" />
+      <stop offset="50%" stop-color="#FACC15" />
+      <stop offset="100%" stop-color="#EAB308" />
+    </linearGradient>
+
+    <!-- White Wing Gradient -->
+    <linearGradient id="whiteWing" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F1F5F9" />
+    </linearGradient>
+
+    <!-- Drop Shadow Filter -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Circular Red Base -->
+  <circle cx="256" cy="256" r="240" fill="url(#redGradient)" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="12" filter="url(#shadow)" />
+
+  <!-- Subtle Inner Ring Highlight -->
+  <circle cx="256" cy="256" r="218" fill="none" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="4" />
+
+  <!-- The YouthSMM Iconic "Y" Winged Symbol -->
+  <g filter="url(#shadow)">
+    <!-- Left Wing -->
+    <path
+      d="M112 136 L256 276 L256 400"
+      stroke="url(#whiteWing)"
+      stroke-width="50"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <!-- Right Wing -->
+    <path
+      d="M400 136 L256 276 L256 400"
+      stroke="url(#whiteWing)"
+      stroke-width="50"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <!-- Golden Vertical Core Stem -->
+    <path
+      d="M256 276 L256 400"
+      stroke="url(#goldGradient)"
+      stroke-width="44"
+      stroke-linecap="round"
+    />
+
+    <!-- Golden Central Nucleus -->
+    <circle cx="256" cy="268" r="34" fill="url(#goldGradient)" stroke="#FFFFFF" stroke-width="6" />
+
+    <!-- Endpoint Energy Nodes -->
+    <!-- Left Top Node -->
+    <circle cx="112" cy="136" r="26" fill="#FFFFFF" />
+    <!-- Right Top Node -->
+    <circle cx="400" cy="136" r="26" fill="#FFFFFF" />
+    <!-- Bottom Stem Node -->
+    <circle cx="256" cy="400" r="25" fill="url(#goldGradient)" stroke="#FFFFFF" stroke-width="4" />
+
+    <!-- Dynamic Energy Lightning Accent at Top Right -->
+    <polygon
+      points="390,75 425,75 405,115 440,115 375,185 395,130 365,130"
+      fill="#FDE047"
+      stroke="#B45309"
+      stroke-width="2"
+      filter="url(#shadow)"
+    />
+  </g>
+</svg>

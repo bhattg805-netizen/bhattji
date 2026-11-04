@@ -1,0 +1,6 @@
+{
+  "name": "youthsmm",
+  "description": "YouthSMM is a reliable and affordable SMM panel for Instagram, Facebook and Telegram. Buy followers, likes, views, members and other social media services at affordable prices with fast delivery.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

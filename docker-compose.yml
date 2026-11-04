@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smm_panel_app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - SQL_HOST=postgres
+      - SQL_PORT=5432
+      - SQL_USER=smmuser
+      - SQL_PASSWORD=smmpassword123
+      - SQL_DB_NAME=smmdb
+      - JWT_SECRET=smm_secure_jwt_token_secret_key_2026!
+      - WHATSAPP_NUMBER=8795005604
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: smm_panel_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: smmuser
+      POSTGRES_PASSWORD: smmpassword123
+      POSTGRES_DB: smmdb
+    volumes:
+      - smm_pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smmuser -d smmdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  smm_pgdata:
+    driver: local
