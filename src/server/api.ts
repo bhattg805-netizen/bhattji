@@ -1065,8 +1065,8 @@ const DEFAULT_SETTINGS: Record<string, string> = {
   homepageYoutubeId: '',
   addFundPageContent: '<div class="space-y-4"><p class="text-gray-300">You can add funds via All UPI, PhonePe QR 1, PhonePe Bonus QR 2, Binance Pay, or Crypto.</p></div>',
   orderIdSkip: '0',
-  seoKeywords: '',
-  seoDescription: 'YouthSMM is a reliable and affordable SMM panel for Instagram, Facebook and Telegram. Buy followers, likes, views, members and other social media services at affordable prices with fast delivery.',
+  seoKeywords: 'smm panel, cheapest smm panel, best smm panel india, smm panel instagram, buy instagram followers, buy youtube views, buy facebook likes, buy telegram members, cheap smm reseller panel, bharatpe smm panel, instant smm provider, youthsmm',
+  seoDescription: "YouthSMM is India's #1 cheapest & most trusted SMM panel. Buy real Instagram followers, YouTube views, Facebook likes & Telegram members with instant 24/7 delivery.",
   headerCode: '',
   footerCode: '',
   headerCodeAfterLogin: '',
@@ -2781,8 +2781,11 @@ router.get('/user/services', requireAuth, async (req: AuthRequest, res) => {
         maxAmount: services.maxAmount,
         status: services.status,
         icon: services.icon,
+        categoryName: categories.name,
+        categoryIcon: categories.icon,
       })
       .from(services)
+      .leftJoin(categories, eq(services.categoryId, categories.id))
       .where(eq(services.status, 'active'))
       .orderBy(services.id);
 

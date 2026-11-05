@@ -14,9 +14,9 @@ export const CANONICAL_SITE_URL = 'https://www.youthsmm.com';
 export const DEFAULT_OG_IMAGE = 'https://www.youthsmm.com/favicon-512x512.png';
 
 export const PRIMARY_SEO: SeoConfig = {
-  title: 'YouthSMM – Cheapest SMM Panel | Instagram, Facebook & Telegram Growth',
+  title: 'YouthSMM – Best & Cheapest SMM Panel | Instagram, YouTube & Facebook Growth',
   description:
-    'YouthSMM is a reliable and affordable SMM panel for Instagram, Facebook and Telegram. Buy followers, likes, views, members and other social media services at affordable prices with fast delivery.',
+    "YouthSMM is India's #1 cheapest & most trusted SMM panel. Buy real Instagram followers, YouTube views, Facebook likes & Telegram members with instant 24/7 delivery.",
   canonicalPath: '/',
   noIndex: false,
   ogType: 'website',
@@ -24,33 +24,69 @@ export const PRIMARY_SEO: SeoConfig = {
 };
 
 export const PAGE_SEO_REGISTRY: Record<string, SeoConfig> = {
-  home: PRIMARY_SEO,
-  services: {
-    title: 'All SMM Services & Pricing – Instagram, Facebook & Telegram | YouthSMM',
+  home: {
+    title: 'YouthSMM – Best & Cheapest SMM Panel in world | Instagram, YouTube & Facebook Growth',
     description:
-      'Explore affordable social media marketing services with instant delivery. Buy real Instagram followers, Facebook likes, and Telegram members on YouthSMM.',
+      "YouthSMM is India's #1 cheapest & most trusted SMM panel. Buy real Instagram followers, YouTube views, Facebook likes & Telegram members with instant 24/7 delivery.",
+    canonicalPath: '/',
+    noIndex: false,
+    ogType: 'website',
+    image: DEFAULT_OG_IMAGE,
+  },
+  services: {
+    title: 'All SMM Services & Reseller Rates | YouthSMM',
+    description:
+      'Browse 2,400+ cheapest SMM reseller services for Instagram followers, YouTube watchtime, Facebook likes & Telegram members with instant delivery.',
     canonicalPath: '/services',
     noIndex: false,
   },
-  blog: {
-    title: 'Social Media Marketing Blog & Growth Guides | YouthSMM',
+  about: {
+    title: 'About YouthSMM – #1 Global SMM Reseller Provider',
     description:
-      'Read proven social media growth strategies, algorithm insights, and marketing tips for Instagram, YouTube, Telegram, and Facebook on YouthSMM.',
-    canonicalPath: '/blog',
+      'Learn about YouthSMM, our automated high-speed API infrastructure, reseller capabilities, and why over 10,000+ businesses and agencies trust us.',
+    canonicalPath: '/about',
     noIndex: false,
   },
-  faq: {
-    title: 'Frequently Asked Questions & Help Center | YouthSMM',
+  login: {
+    title: 'Sign In – Access Your Dashboard & Orders | YouthSMM',
     description:
-      'Find answers to common questions regarding orders, payments, automated delivery, refill policies, and child panels on YouthSMM.',
-    canonicalPath: '/faq',
+      'Log in to your YouthSMM account to manage social media marketing orders, track live provider delivery, and add funds with zero fees.',
+    canonicalPath: '/login',
+    noIndex: false,
+  },
+  register: {
+    title: 'Create Free Account – Start Reselling SMM Services | YouthSMM',
+    description:
+      'Sign up for YouthSMM in 30 seconds. Get immediate access to wholesale reseller rates for Instagram, YouTube, Telegram, and Facebook services.',
+    canonicalPath: '/register',
     noIndex: false,
   },
   'api-docs': {
-    title: 'SMM Reseller API Documentation & Integration | YouthSMM',
+    title: 'SMM API Documentation & Reseller Integration | YouthSMM',
     description:
-      'Connect your reseller website or panel to YouthSMM using our high-speed REST API. Automate order placement, refills, and balance checks.',
+      'Connect your website or reseller panel directly to YouthSMM using our ultra-fast REST API. Automate order placement, status tracking, and balance sync.',
     canonicalPath: '/api-docs',
+    noIndex: false,
+  },
+  faq: {
+    title: 'FAQ & Help Center – SMM Orders & UPI Payments | YouthSMM',
+    description:
+      'Get instant answers about YouthSMM order speeds, automated refill guarantees, BharatPe UPI payment verification, and reseller child panels.',
+    canonicalPath: '/faq',
+    noIndex: false,
+  },
+  blog: {
+    title: 'Social Media Growth Blog & Algorithm Guides 2026 | YouthSMM',
+    description:
+      'Read actionable growth strategies, algorithmic breakdown for Instagram Reels, YouTube watch hours, and tips to scale your social presence.',
+    canonicalPath: '/blog',
+    noIndex: false,
+  },
+  contact: {
+    title: 'Contact Us & 24/7 Customer Support | YouthSMM',
+    description:
+      'Contact YouthSMM 24/7 via WhatsApp (+91-8795005604), Telegram (@securesmmtursted), or ticket system for instant assistance.',
+    canonicalPath: '/contact',
     noIndex: false,
   },
   'child-panels': {
@@ -67,22 +103,8 @@ export const PAGE_SEO_REGISTRY: Record<string, SeoConfig> = {
     canonicalPath: '/affiliates',
     noIndex: false,
   },
-  about: {
-    title: 'About YouthSMM – Reliable Global Social Media Partner',
-    description:
-      'Learn about YouthSMM, our mission, 24/7 automated infrastructure, and why thousands of creators and agencies trust us for social media growth.',
-    canonicalPath: '/about',
-    noIndex: false,
-  },
-  contact: {
-    title: 'Contact & 24/7 Customer Support | YouthSMM',
-    description:
-      'Get 24/7 assistance from the YouthSMM support team. Contact us via live chat, WhatsApp, Telegram, or ticket system for instant help.',
-    canonicalPath: '/contact',
-    noIndex: false,
-  },
   terms: {
-    title: 'Terms of Service – Usage Guidelines & Policies | YouthSMM',
+    title: 'Terms of Service – SMM Usage Guidelines & Policies | YouthSMM',
     description:
       'Review the official terms of service, acceptable use guidelines, refund terms, and customer rights for using YouthSMM marketing solutions.',
     canonicalPath: '/terms',
@@ -93,6 +115,15 @@ export const PAGE_SEO_REGISTRY: Record<string, SeoConfig> = {
     description:
       'Read how YouthSMM securely manages, protects, and encrypts your private data. Transparent data safety standards and zero sharing with third parties.',
     canonicalPath: '/privacy',
+    noIndex: false,
+  },
+
+  // Auth alias
+  auth: {
+    title: 'Sign In & Register | YouthSMM',
+    description:
+      'Log in or create a new account on YouthSMM to access wholesale social media reseller services.',
+    canonicalPath: '/login',
     noIndex: false,
   },
 
@@ -109,13 +140,32 @@ export const PAGE_SEO_REGISTRY: Record<string, SeoConfig> = {
     canonicalPath: '/',
     noIndex: true,
   },
-  auth: {
-    title: 'Sign In & Register | YouthSMM',
-    description: 'Log in or create a new account on YouthSMM.',
-    canonicalPath: '/',
-    noIndex: true,
-  },
 };
+
+/**
+ * Generates Schema.org BreadcrumbList JSON-LD object for any page
+ */
+export function generateBreadcrumbSchema(pageName: string, pagePath: string) {
+  const cleanPath = pagePath.startsWith('/') ? pagePath : `/${pagePath}`;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: `${CANONICAL_SITE_URL}/`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: pageName,
+        item: `${CANONICAL_SITE_URL}${cleanPath}`,
+      },
+    ],
+  };
+}
 
 /**
  * Updates DOM metadata cleanly, eliminating duplicates and enforcing SEO standards.
@@ -133,13 +183,7 @@ export function updateSeoMetadata(config: Partial<SeoConfig> = {}): void {
   // 1. Title
   document.title = title;
 
-  // 2. Remove obsolete or stuffed meta keywords if any exist
-  const keywordsTag = document.querySelector("meta[name='keywords']");
-  if (keywordsTag) {
-    keywordsTag.remove();
-  }
-
-  // 3. Meta Description (single source of truth)
+  // 2. Meta Description (single source of truth)
   let descMeta = document.querySelector("meta[name='description']") as HTMLMetaElement | null;
   if (!descMeta) {
     descMeta = document.createElement('meta');

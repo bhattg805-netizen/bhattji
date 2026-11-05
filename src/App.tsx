@@ -6,7 +6,6 @@ import { applyThemeVariables } from './lib/theme.ts';
 import { getApiUrl, safeParseResponse, fetchPublicSettings } from './lib/api.ts';
 import { updateSeoMetadata, PAGE_SEO_REGISTRY } from './utils/seo.ts';
 import { BharatPeApiLookup } from './components/BharatPeApiLookup.tsx';
-import { DiwaliOverlay } from './components/DiwaliOverlay.tsx';
 
 // Code-split heavy dashboards to keep initial mobile bundle ultra-light and blazing fast (<1.2s)
 const UserDashboard = lazy(() =>
@@ -341,7 +340,6 @@ function AppContent() {
   return (
     <div className="relative min-h-screen">
       {renderActiveView()}
-      <DiwaliOverlay />
     </div>
   );
 }

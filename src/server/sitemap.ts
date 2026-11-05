@@ -3,19 +3,21 @@ import { db } from '../db/index';
 import { blogs, settings } from '../db/schema';
 import { eq, desc } from 'drizzle-orm';
 
-// Static public pages that should always be indexed for SEO
+// Static public pages that should always be indexed for SEO and Google Sitelinks
 const STATIC_PUBLIC_PAGES = [
   { path: '', changefreq: 'daily', priority: '1.0' },
-  { path: '/services', changefreq: 'daily', priority: '0.9' },
-  { path: '/blog', changefreq: 'daily', priority: '0.8' },
-  { path: '/faq', changefreq: 'weekly', priority: '0.8' },
-  { path: '/api-docs', changefreq: 'monthly', priority: '0.7' },
-  { path: '/child-panels', changefreq: 'monthly', priority: '0.7' },
-  { path: '/affiliates', changefreq: 'monthly', priority: '0.7' },
-  { path: '/about', changefreq: 'monthly', priority: '0.6' },
-  { path: '/contact', changefreq: 'monthly', priority: '0.6' },
-  { path: '/terms', changefreq: 'monthly', priority: '0.5' },
-  { path: '/privacy', changefreq: 'monthly', priority: '0.5' },
+  { path: '/services', changefreq: 'daily', priority: '0.95' },
+  { path: '/about', changefreq: 'weekly', priority: '0.85' },
+  { path: '/api-docs', changefreq: 'weekly', priority: '0.85' },
+  { path: '/faq', changefreq: 'weekly', priority: '0.85' },
+  { path: '/blog', changefreq: 'daily', priority: '0.85' },
+  { path: '/contact', changefreq: 'weekly', priority: '0.80' },
+  { path: '/login', changefreq: 'weekly', priority: '0.80' },
+  { path: '/register', changefreq: 'weekly', priority: '0.80' },
+  { path: '/child-panels', changefreq: 'weekly', priority: '0.75' },
+  { path: '/affiliates', changefreq: 'weekly', priority: '0.75' },
+  { path: '/terms', changefreq: 'monthly', priority: '0.50' },
+  { path: '/privacy', changefreq: 'monthly', priority: '0.50' },
 ];
 
 // Fallback editorial articles present in the frontend
@@ -200,16 +202,20 @@ Allow: /*.png
 Allow: /*.svg
 Allow: /site.webmanifest
 Allow: /services
+Allow: /about
+Allow: /api-docs
+Allow: /faq
 Allow: /blog
 Allow: /blog/*
-Allow: /api-docs
-Allow: /about
-Allow: /faq
 Allow: /contact
-Allow: /terms
-Allow: /privacy
+Allow: /login
+Allow: /register
+Allow: /signin
+Allow: /signup
 Allow: /child-panels
 Allow: /affiliates
+Allow: /terms
+Allow: /privacy
 
 # Explicitly allow Google Search & Image crawlers to index favicon and brand assets
 User-agent: Googlebot-Image
@@ -218,17 +224,13 @@ Allow: /
 User-agent: Googlebot
 Allow: /
 
-# Disallow private user, admin, auth and API backend routes
+# Disallow private user workspace, admin portal and internal API backend routes
 Disallow: /admin
 Disallow: /admin/
 Disallow: /dashboard
 Disallow: /dashboard/
 Disallow: /api/
 Disallow: /auth/
-Disallow: /login
-Disallow: /register
-Disallow: /signin
-Disallow: /signup
 
 # Sitemap Location
 Sitemap: ${cleanBase}/sitemap.xml

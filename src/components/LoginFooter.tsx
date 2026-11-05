@@ -91,50 +91,50 @@ export const LoginFooter: React.FC<LoginFooterProps> = ({
             </h4>
             <ul className="space-y-2.5 text-xs sm:text-sm">
               <li>
-                <button
-                  type="button"
-                  onClick={() => onOpenCategory('Instagram')}
-                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5"
+                <a
+                  href="/services"
+                  onClick={(e) => { e.preventDefault(); onOpenCategory('Instagram'); }}
+                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5 inline-block"
                 >
-                  Instagram
-                </button>
+                  Instagram Services
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => onOpenCategory('YouTube')}
-                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5"
+                <a
+                  href="/services"
+                  onClick={(e) => { e.preventDefault(); onOpenCategory('YouTube'); }}
+                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5 inline-block"
                 >
-                  YouTube
-                </button>
+                  YouTube Services
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => onOpenCategory('Facebook')}
-                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5"
+                <a
+                  href="/services"
+                  onClick={(e) => { e.preventDefault(); onOpenCategory('Facebook'); }}
+                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5 inline-block"
                 >
-                  Facebook
-                </button>
+                  Facebook Services
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => onOpenCategory('Telegram')}
-                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5"
+                <a
+                  href="/services"
+                  onClick={(e) => { e.preventDefault(); onOpenCategory('Telegram'); }}
+                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5 inline-block"
                 >
-                  Telegram
-                </button>
+                  Telegram Services
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => onOpenCategory('All')}
+                <a
+                  href="/services"
+                  onClick={(e) => { e.preventDefault(); onOpenCategory('All'); }}
                   className="text-red-600 hover:text-red-700 font-bold transition-colors cursor-pointer text-left py-0.5 inline-flex items-center space-x-1"
                 >
-                  <span>All Services</span>
+                  <span>All SMM Services</span>
                   <span>&rarr;</span>
-                </button>
+                </a>
               </li>
             </ul>
           </div>
@@ -148,50 +148,50 @@ export const LoginFooter: React.FC<LoginFooterProps> = ({
             </h4>
             <ul className="space-y-2.5 text-xs sm:text-sm">
               <li>
-                <button
-                  type="button"
-                  onClick={onOpenAboutUs}
+                <a
+                  href="/about"
+                  onClick={(e) => { e.preventDefault(); onOpenAboutUs(); }}
                   className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5 font-bold flex items-center space-x-1"
                 >
                   <span>About Us</span>
                   <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-red-100 text-red-700 font-semibold">Info</span>
-                </button>
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={onOpenBlog}
-                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5"
+                <a
+                  href="/blog"
+                  onClick={(e) => { e.preventDefault(); onOpenBlog(); }}
+                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5 inline-block"
                 >
-                  Blog
-                </button>
+                  Blog & News
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={onOpenApi}
-                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5"
+                <a
+                  href="/api-docs"
+                  onClick={(e) => { e.preventDefault(); onOpenApi(); }}
+                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5 inline-block"
                 >
-                  API
-                </button>
+                  API Documentation
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={onOpenChildPanels}
-                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5"
+                <a
+                  href="/child-panels"
+                  onClick={(e) => { e.preventDefault(); onOpenChildPanels(); }}
+                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5 inline-block"
                 >
                   Child Panels
-                </button>
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={onOpenAffiliates}
-                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5"
+                <a
+                  href="/affiliates"
+                  onClick={(e) => { e.preventDefault(); onOpenAffiliates(); }}
+                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5 inline-block"
                 >
-                  Affiliates
-                </button>
+                  Affiliates Program
+                </a>
               </li>
             </ul>
           </div>
@@ -205,49 +205,49 @@ export const LoginFooter: React.FC<LoginFooterProps> = ({
             </h4>
             <ul className="space-y-2.5 text-xs sm:text-sm">
               <li>
-                <button
-                  type="button"
-                  onClick={onScrollToFaq}
-                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5"
+                <a
+                  href="/faq"
+                  onClick={(e) => { e.preventDefault(); onScrollToFaq(); }}
+                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5 inline-block"
                 >
-                  FAQ
-                </button>
+                  FAQ & Knowledge Base
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={onOpenSupport}
-                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5"
+                <a
+                  href="/contact"
+                  onClick={(e) => { e.preventDefault(); onOpenSupport(); }}
+                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5 inline-block"
                 >
-                  Tickets
-                </button>
+                  Tickets & Support
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={onOpenTerms}
-                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5"
+                <a
+                  href="/terms"
+                  onClick={(e) => { e.preventDefault(); onOpenTerms(); }}
+                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5 inline-block"
                 >
-                  Terms
-                </button>
+                  Terms of Service
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={onOpenPrivacy}
-                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5"
+                <a
+                  href="/privacy"
+                  onClick={(e) => { e.preventDefault(); onOpenPrivacy(); }}
+                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5 inline-block"
                 >
                   Privacy Policy
-                </button>
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={onOpenContact}
-                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5"
+                <a
+                  href="/contact"
+                  onClick={(e) => { e.preventDefault(); onOpenContact(); }}
+                  className="text-stone-600 hover:text-red-600 transition-colors cursor-pointer text-left py-0.5 inline-block"
                 >
                   Contact Us
-                </button>
+                </a>
               </li>
             </ul>
           </div>

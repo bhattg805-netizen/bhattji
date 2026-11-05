@@ -90,7 +90,25 @@ export function getCategoryIcon(
   if (key.includes('telegram') || key === 'tg' || key.includes('channel')) {
     return <TelegramIcon className={`${className} text-[#229ED9] transition-transform duration-200 hover:scale-115 shrink-0`} />;
   }
-  if (key.includes('facebook') || key === 'fb') {
+  if (
+    key.includes('facebook') ||
+    key.includes('face book') ||
+    key.includes('face-book') ||
+    key.includes('meta') ||
+    key.includes('fanpage') ||
+    key.includes('page like') ||
+    key.includes('page follower') ||
+    /\bfb\b/i.test(key) ||
+    key.startsWith('fb') ||
+    key.includes('fb ') ||
+    key.includes(' fb') ||
+    key.includes('fb-') ||
+    key.includes('fb_') ||
+    key.includes('fb/') ||
+    key.includes('[fb') ||
+    key.includes('(fb') ||
+    key === 'fb'
+  ) {
     return <FacebookIcon className={`${className} text-[#1877F2] transition-transform duration-200 hover:scale-115 shrink-0`} />;
   }
   if (key.includes('spotify') || key.includes('podcast') || key.includes('music')) {

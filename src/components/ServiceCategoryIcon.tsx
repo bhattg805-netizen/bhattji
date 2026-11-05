@@ -167,7 +167,25 @@ export const ServiceCategoryIcon: React.FC<ServiceCategoryIconProps> = ({
   }
 
   // 5. FACEBOOK (Authentic Facebook Official 'f' Logo)
-  if (text.includes('facebook') || text.includes('fb ')) {
+  if (
+    text.includes('facebook') ||
+    text.includes('face book') ||
+    text.includes('face-book') ||
+    text.includes('meta') ||
+    text.includes('fanpage') ||
+    text.includes('page like') ||
+    text.includes('page follower') ||
+    /\bfb\b/i.test(text) ||
+    text.startsWith('fb') ||
+    text.includes('fb ') ||
+    text.includes(' fb') ||
+    text.includes('fb-') ||
+    text.includes('fb_') ||
+    text.includes('fb/') ||
+    text.includes('[fb') ||
+    text.includes('(fb') ||
+    text === 'fb'
+  ) {
     return (
       <motion.div
         animate={animated ? { 

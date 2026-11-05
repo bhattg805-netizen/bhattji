@@ -1011,6 +1011,10 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
         t.includes('face book') ||
         t.includes('face-book') ||
         t.includes('meta') ||
+        t.includes('fanpage') ||
+        t.includes('fan page') ||
+        t.includes('page like') ||
+        t.includes('page follower') ||
         /\bfb\b/i.test(t) ||
         /(?:^|[^a-z0-9])fb(?:[^a-z0-9]|$)/i.test(t) ||
         t.includes('fb ') ||
@@ -1020,7 +1024,8 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
         t.includes('fb/') ||
         t.includes('[fb') ||
         t.includes('(fb') ||
-        t.startsWith('fb')
+        t.startsWith('fb') ||
+        t === 'fb'
       );
     }
     if (p === 'instagram') {
@@ -1076,6 +1081,27 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
     return t.includes(p);
   };
 
+  // Complete list of categories cleanly reflecting active categories and services from the database
+  const allCategories = useMemo(() => {
+    const list = [...categories];
+    services.forEach(s => {
+      const sCatId = s.categoryId ?? (s as any).category_id;
+      const exists = list.some(c => String(c.id) === String(sCatId) || (s.categoryName && c.name.toLowerCase() === s.categoryName.toLowerCase()));
+      if (!exists && sCatId) {
+        const catName = s.categoryName || `Category #${sCatId}`;
+        list.push({
+          id: Number(sCatId),
+          name: catName,
+          status: 'active',
+          sortOrder: list.length + 1,
+          icon: (s as any).categoryIcon || (s as any).category_icon || s.icon || 'globe',
+          createdAt: new Date().toISOString(),
+        });
+      }
+    });
+    return list;
+  }, [categories, services]);
+
   const isServiceInPlatform = (s: Service, platformId: string): boolean => {
     if (!platformId || platformId === 'All') return true;
     if (isMatchingPlatform(s.name, platformId)) return true;
@@ -1084,10 +1110,12 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
     if (s.categoryName && isMatchingPlatform(s.categoryName, platformId)) return true;
     if ((s as any).category_name && isMatchingPlatform((s as any).category_name, platformId)) return true;
     if ((s as any).category && isMatchingPlatform((s as any).category, platformId)) return true;
+    if ((s as any).categoryIcon && isMatchingPlatform((s as any).categoryIcon, platformId)) return true;
+    if ((s as any).category_icon && isMatchingPlatform((s as any).category_icon, platformId)) return true;
     const sCatId = s.categoryId ?? (s as any).category_id;
     if (sCatId !== undefined && sCatId !== null) {
-      const parentCat = categories.find(c => String(c.id) === String(sCatId)) ||
-        DEFAULT_PLATFORM_CATEGORIES.find(c => String(c.id) === String(sCatId));
+      const parentCat = allCategories.find(c => String(c.id) === String(sCatId)) ||
+        categories.find(c => String(c.id) === String(sCatId));
       if (parentCat) {
         if (isMatchingPlatform(parentCat.name, platformId)) return true;
         if (isMatchingPlatform(parentCat.icon, platformId)) return true;
@@ -1112,27 +1140,6 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
       return (idMatch || nameMatch) && isServiceInPlatform(s, platformId);
     });
   };
-
-  // Complete list of categories cleanly reflecting active categories and services from the database
-  const allCategories = useMemo(() => {
-    const list = [...categories];
-    services.forEach(s => {
-      const sCatId = s.categoryId ?? (s as any).category_id;
-      const exists = list.some(c => String(c.id) === String(sCatId) || (s.categoryName && c.name.toLowerCase() === s.categoryName.toLowerCase()));
-      if (!exists && sCatId) {
-        const catName = s.categoryName || `Category #${sCatId}`;
-        list.push({
-          id: Number(sCatId),
-          name: catName,
-          status: 'active',
-          sortOrder: list.length + 1,
-          icon: s.icon || 'globe',
-          createdAt: new Date().toISOString(),
-        });
-      }
-    });
-    return list;
-  }, [categories, services]);
 
   // Memoized Selected Category & Service calculation
   const selectedCategory = useMemo(() => {
@@ -1182,7 +1189,13 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
         const sCatId = String(s.categoryId ?? (s as any).category_id ?? '');
         return sCatId === catId;
       });
-      if (catServices.length > 0) return catServices;
+      if (catServices.length > 0) {
+        if (selectedPlatform !== 'All') {
+          const platformFiltered = catServices.filter(s => isServiceInPlatform(s, selectedPlatform));
+          if (platformFiltered.length > 0) return platformFiltered;
+        }
+        return catServices;
+      }
     }
     if (selectedPlatform !== 'All') {
       return services.filter(s => isServiceInPlatform(s, selectedPlatform));
@@ -1212,53 +1225,111 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
     });
   }, [services, categories, quickSearchQuery]);
 
-  // Automatically populate Category and Service box when platform changes so that the selected platform's service immediately appears
+  // Handle Platform selection: auto-selects matching category and service into the form boxes
+  const handleSelectPlatform = (platformId: string) => {
+    setSelectedPlatform(platformId);
+
+    // 1. Get filtered categories for this platform
+    const platformCategories = platformId === 'All'
+      ? allCategories
+      : allCategories.filter(c => isCategoryInPlatform(c, platformId));
+
+    if (platformCategories.length > 0) {
+      const targetCat = platformCategories[0];
+      const targetCatId = String(targetCat.id);
+
+      // Find services belonging to this category and platform
+      const catServices = services.filter(s => {
+        const sCatId = String(s.categoryId ?? (s as any).category_id ?? '');
+        const matchesCat = sCatId === targetCatId;
+        const matchesPlat = platformId === 'All' || isServiceInPlatform(s, platformId);
+        return matchesCat && matchesPlat;
+      });
+
+      const targetSrv = catServices.length > 0
+        ? catServices[0]
+        : (platformId === 'All'
+            ? services[0]
+            : services.find(s => isServiceInPlatform(s, platformId)));
+
+      setNewOrder(prev => ({
+        ...prev,
+        categoryId: targetCatId,
+        serviceId: targetSrv ? String(targetSrv.id) : '',
+      }));
+    } else {
+      // If no category explicitly matched, see if any service matches this platform directly
+      const directSrv = platformId === 'All'
+        ? services[0]
+        : services.find(s => isServiceInPlatform(s, platformId));
+
+      if (directSrv) {
+        const sCatId = directSrv.categoryId ?? (directSrv as any).category_id;
+        setNewOrder(prev => ({
+          ...prev,
+          categoryId: sCatId ? String(sCatId) : '',
+          serviceId: String(directSrv.id),
+        }));
+      } else {
+        setNewOrder(prev => ({ ...prev, categoryId: '', serviceId: '' }));
+      }
+    }
+  };
+
+  // Auto-populate Category & Service on load or when catalog loads if not yet selected
   useEffect(() => {
-    if (selectedPlatform && selectedPlatform !== 'All') {
-      const platCategories = allCategories.filter(c => isCategoryInPlatform(c, selectedPlatform));
-      const firstCat = platCategories.length > 0 ? platCategories[0] : null;
+    if (services.length > 0 && (!newOrder.categoryId || !newOrder.serviceId)) {
+      const platformCategories = selectedPlatform === 'All'
+        ? allCategories
+        : allCategories.filter(c => isCategoryInPlatform(c, selectedPlatform));
 
-      // Check if currently selected category already belongs to this platform
-      const currentCatValid = newOrder.categoryId && platCategories.some(c => String(c.id) === String(newOrder.categoryId));
-      const activeCat = currentCatValid
-        ? allCategories.find(c => String(c.id) === String(newOrder.categoryId))
-        : firstCat;
-
-      // Find services for this active category / platform
-      let firstSrv: Service | null = null;
-      if (activeCat) {
+      if (platformCategories.length > 0) {
+        const targetCat = platformCategories[0];
+        const targetCatId = String(targetCat.id);
         const catServices = services.filter(s => {
           const sCatId = String(s.categoryId ?? (s as any).category_id ?? '');
-          return sCatId === String(activeCat.id);
+          const matchesCat = sCatId === targetCatId;
+          const matchesPlat = selectedPlatform === 'All' || isServiceInPlatform(s, selectedPlatform);
+          return matchesCat && matchesPlat;
         });
-        if (catServices.length > 0) {
-          const currentSrvValid = newOrder.serviceId && catServices.some(s => String(s.id) === String(newOrder.serviceId));
-          firstSrv = currentSrvValid
-            ? catServices.find(s => String(s.id) === String(newOrder.serviceId)) || catServices[0]
-            : catServices[0];
+
+        const targetSrv = catServices.length > 0
+          ? catServices[0]
+          : (selectedPlatform === 'All'
+              ? services[0]
+              : services.find(s => isServiceInPlatform(s, selectedPlatform)));
+
+        setNewOrder(prev => {
+          if (prev.categoryId && prev.serviceId && services.some(s => s.id === Number(prev.serviceId))) {
+            return prev;
+          }
+          return {
+            ...prev,
+            categoryId: targetCatId,
+            serviceId: targetSrv ? String(targetSrv.id) : '',
+          };
+        });
+      } else {
+        const directSrv = selectedPlatform === 'All'
+          ? services[0]
+          : services.find(s => isServiceInPlatform(s, selectedPlatform));
+        if (directSrv) {
+          const sCatId = directSrv.categoryId ?? (directSrv as any).category_id;
+          setNewOrder(prev => {
+            if (prev.categoryId && prev.serviceId && services.some(s => s.id === Number(prev.serviceId))) {
+              return prev;
+            }
+            return {
+              ...prev,
+              categoryId: sCatId ? String(sCatId) : '',
+              serviceId: String(directSrv.id),
+            };
+          });
         }
       }
-
-      if (!firstSrv) {
-        const platServices = services.filter(s => isServiceInPlatform(s, selectedPlatform));
-        if (platServices.length > 0) {
-          firstSrv = platServices[0];
-        }
-      }
-
-      const nextCatId = activeCat ? String(activeCat.id) : (firstSrv ? String(firstSrv.categoryId) : '');
-      const nextSrvId = firstSrv ? String(firstSrv.id) : '';
-
-      setNewOrder(prev => {
-        if (prev.categoryId === nextCatId && prev.serviceId === nextSrvId) return prev;
-        return {
-          ...prev,
-          categoryId: nextCatId,
-          serviceId: nextSrvId,
-        };
-      });
     }
-  }, [selectedPlatform, allCategories, services]);
+  }, [services, allCategories, selectedPlatform]);
+
 
   // Calculate user total orders & total spent
   const totalOrdersCount = orders.length;
@@ -1621,9 +1692,37 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
         {/* 2A. LEFT SIDEBAR (CSS Selector 2) */}
         {/* ========================================================================= */}
         <aside className={`
-          fixed md:relative inset-y-0 left-0 z-50 md:z-10 w-72 md:w-64 ${isDarkMode ? 'bg-[#141414] md:bg-transparent text-gray-200' : 'bg-[#FAF7EE] md:bg-transparent text-stone-800'} flex flex-col space-y-4 flex-shrink-0 transition-transform duration-300 md:transform-none p-4 md:p-0
+          fixed md:relative inset-y-0 left-0 z-50 md:z-10 w-72 md:w-64 ${isDarkMode ? 'bg-[#141414] md:bg-transparent text-gray-200' : 'bg-[#FAF7EE] md:bg-transparent text-stone-800'} flex flex-col space-y-4 flex-shrink-0 transition-transform duration-300 md:transform-none p-4 md:p-0 overflow-y-auto max-h-screen overscroll-contain
           ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'}
         `}>
+          {/* Mobile Drawer Top Bar with Brand & Close Button */}
+          <div className="flex md:hidden items-center justify-between pb-2 border-b border-stone-200 dark:border-stone-800 shrink-0">
+            <div className="flex items-center space-x-2">
+              {publicSettings.websiteLogo ? (
+                <img
+                  src={publicSettings.websiteLogo}
+                  alt={publicSettings.websiteName || 'YouthSMM'}
+                  className="h-7 max-w-[120px] object-contain"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <AnimatedLogo size="sm" showText={true} theme={isDarkMode ? 'dark' : 'light'} />
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`p-2 rounded-xl border transition-colors cursor-pointer ${
+                isDarkMode
+                  ? 'bg-[#1C1C1C] border-[#292929] text-gray-300 hover:text-white'
+                  : 'bg-white border-[#EAE3D2] text-stone-700 hover:text-stone-900'
+              }`}
+              aria-label="Close menu"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
           {/* Top Red Balance & Level Card (YouthSMM Bold Red Branding) */}
           <div className="bg-gradient-to-br from-[#FF3030] via-[#E82626] to-[#C91818] text-white rounded-3xl p-5 shadow-lg shadow-red-950/40 text-left relative overflow-hidden border border-red-500/30">
             {/* Subtle light bubble in background */}
@@ -1678,7 +1777,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
           </div>
 
           {/* Navigation Menu List (Exact styled items with colored square icons) */}
-          <nav className="space-y-1.5 overflow-y-auto max-h-[calc(100vh-360px)] pr-1 scrollbar-none">
+          <nav className="space-y-1.5 overflow-y-auto md:max-h-[calc(100vh-360px)] pr-1 scrollbar-none">
             {/* Admin Panel Quick Switcher in Sidebar */}
             {(isAdmin || user.role === 'admin' || user.email?.toLowerCase().includes('bhattg805') || user.email?.toLowerCase().includes('echoesclub8')) && (
               <button
@@ -1952,7 +2051,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
           {activeTab === 'new-order' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Left Column: Place New Order Form */}
-              <div className={`lg:col-span-2 ${isDarkMode ? 'bg-[#1C1C1C] border border-[#292929] text-white shadow-xl shadow-black/40' : 'bg-white border border-[#EAE3D2]'} rounded-3xl p-6 sm:p-8 shadow-xs`}>
+              <div className={`lg:col-span-2 ${isDarkMode ? 'bg-[#1C1C1C] border border-[#292929] text-white shadow-xl shadow-black/40' : 'bg-white border border-[#EAE3D2]'} rounded-3xl p-4 sm:p-8 shadow-xs`}>
                 {/* Header with red circle lightning */}
                 <div className="flex items-center space-x-3 mb-6">
                   <div className="w-9 h-9 rounded-full bg-[#FF3030] text-white flex items-center justify-center shadow-md shadow-red-950/40">
@@ -2009,7 +2108,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
                   <label className={`block text-[11px] font-extrabold uppercase tracking-wider mb-2.5 ${isDarkMode ? 'text-gray-400' : 'text-stone-500'}`}>
                     Step 1: Choose Platform
                   </label>
-                  <div className="flex flex-wrap gap-2.5">
+                  <div className="flex sm:flex-wrap items-center gap-2 sm:gap-2.5 overflow-x-auto pb-2 sm:pb-0 scrollbar-none touch-pan-x -mx-1 px-1">
                     {platforms.map((p) => {
                       const PIcon = p.icon;
                       const isSel = selectedPlatform === p.id;
@@ -2017,41 +2116,10 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
                         <motion.button
                           key={p.id}
                           type="button"
-                          whileHover={{ scale: 1.06, y: -2 }}
+                          whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
-                          onClick={() => {
-                            setSelectedPlatform(p.id);
-                            if (p.id === 'All') {
-                              setNewOrder(prev => ({ ...prev, categoryId: '', serviceId: '' }));
-                            } else {
-                              const matches = allCategories.filter(c => isCategoryInPlatform(c, p.id));
-                              const firstCat = matches.length > 0 ? matches[0] : null;
-
-                              let firstService: Service | null = null;
-                              if (firstCat) {
-                                const catServices = services.filter(s => {
-                                  const sCatId = String(s.categoryId ?? (s as any).category_id ?? '');
-                                  return sCatId === String(firstCat.id);
-                                });
-                                if (catServices.length > 0) {
-                                  firstService = catServices[0];
-                                }
-                              }
-                              if (!firstService) {
-                                const platServices = services.filter(s => isServiceInPlatform(s, p.id));
-                                if (platServices.length > 0) {
-                                  firstService = platServices[0];
-                                }
-                              }
-
-                              setNewOrder(prev => ({
-                                ...prev,
-                                categoryId: firstCat ? String(firstCat.id) : (firstService ? String(firstService.categoryId) : ''),
-                                serviceId: firstService ? String(firstService.id) : '',
-                              }));
-                            }
-                          }}
-                          className={`relative px-3.5 py-2 rounded-xl text-xs font-bold flex items-center space-x-2 transition-all cursor-pointer border overflow-hidden group select-none ${
+                          onClick={() => handleSelectPlatform(p.id)}
+                          className={`relative px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center space-x-2 transition-all cursor-pointer border overflow-hidden group select-none whitespace-nowrap shrink-0 min-h-[42px] ${
                             isSel
                               ? `${p.activeBg} border-white/20 text-white shadow-md shadow-red-600/20`
                               : isDarkMode
@@ -2192,7 +2260,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
                           setQuickSearchQuery(val);
                           setIsQuickSearchOpen(val.trim().length > 0);
                         }}
-                        className={`w-full pl-10 pr-10 py-3 rounded-2xl border text-xs font-semibold focus:outline-none transition-all shadow-xs ${
+                        className={`w-full pl-10 pr-10 py-3 min-h-[48px] rounded-2xl border text-base sm:text-xs font-semibold focus:outline-none transition-all shadow-xs ${
                           isDarkMode
                             ? 'bg-[#141414] border-[#2A2A2A] text-white placeholder-gray-500 focus:border-[#FF3030] focus:ring-1 focus:ring-[#FF3030]/40'
                             : 'bg-[#FAF7EE] border-[#EAE3D2] text-stone-900 placeholder-stone-400 focus:bg-[#FFFDF9] focus:border-red-600 focus:ring-1 focus:ring-red-600/30'
@@ -2641,7 +2709,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
                       placeholder="https://instagram.com/reel/... or username / profile link"
                       value={newOrder.link}
                       onChange={(e) => setNewOrder({ ...newOrder, link: e.target.value })}
-                      className={`w-full px-4 py-3 rounded-2xl border text-sm font-semibold shadow-xs focus:outline-none focus:border-[#FF3030] focus:ring-1 focus:ring-[#FF3030] ${
+                      className={`w-full px-4 py-3 min-h-[48px] rounded-2xl border text-base sm:text-sm font-semibold shadow-xs focus:outline-none focus:border-[#FF3030] focus:ring-1 focus:ring-[#FF3030] ${
                         isDarkMode
                           ? 'bg-[#141414] border-[#2A2A2A] text-white placeholder-gray-500'
                           : 'bg-[#FAF7EE] border-[#EAE3D2] text-stone-900 placeholder-stone-400 focus:bg-[#FFFDF9]'
@@ -2667,7 +2735,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
                       placeholder="e.g. 1000"
                       value={newOrder.quantity}
                       onChange={(e) => setNewOrder({ ...newOrder, quantity: e.target.value })}
-                      className={`w-full px-4 py-3 rounded-2xl border text-sm font-semibold shadow-xs focus:outline-none focus:border-[#FF3030] focus:ring-1 focus:ring-[#FF3030] ${
+                      className={`w-full px-4 py-3 min-h-[48px] rounded-2xl border text-base sm:text-sm font-semibold shadow-xs focus:outline-none focus:border-[#FF3030] focus:ring-1 focus:ring-[#FF3030] ${
                         isDarkMode
                           ? 'bg-[#141414] border-[#2A2A2A] text-white placeholder-gray-500'
                           : 'bg-[#FAF7EE] border-[#EAE3D2] text-stone-900 placeholder-stone-400 focus:bg-[#FFFDF9]'
@@ -2695,7 +2763,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
                               key={chip.label}
                               type="button"
                               onClick={() => setNewOrder({ ...newOrder, quantity: String(chip.val) })}
-                              className={`text-[10px] px-2.5 py-1 rounded-xl font-bold transition-all cursor-pointer ${
+                              className={`text-[10px] px-2.5 py-1 min-h-[32px] rounded-xl font-bold transition-all cursor-pointer ${
                                 newOrder.quantity === String(chip.val)
                                   ? 'bg-[#FF3030] text-white shadow-md shadow-red-950/40'
                                   : isDarkMode
@@ -2789,7 +2857,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
                       placeholder="e.g. DISCO10"
                       value={newOrder.coupon}
                       onChange={(e) => setNewOrder({ ...newOrder, coupon: e.target.value })}
-                      className={`w-full px-4 py-3 rounded-2xl border text-sm font-semibold shadow-xs focus:outline-none focus:border-[#FF3030] focus:ring-1 focus:ring-[#FF3030] ${
+                      className={`w-full px-4 py-3 min-h-[48px] rounded-2xl border text-base sm:text-sm font-semibold shadow-xs focus:outline-none focus:border-[#FF3030] focus:ring-1 focus:ring-[#FF3030] ${
                         isDarkMode
                           ? 'bg-[#141414] border-[#2A2A2A] text-white placeholder-gray-500'
                           : 'bg-[#FAF7EE] border-[#EAE3D2] text-stone-900 placeholder-stone-400 focus:bg-[#FFFDF9]'
@@ -2801,7 +2869,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-4 rounded-2xl bg-[#FF3030] hover:bg-[#E02424] text-white font-black text-sm shadow-xl shadow-red-950/50 transition-all hover:scale-[1.01] active:scale-98 flex items-center justify-center space-x-2 cursor-pointer uppercase tracking-wider"
+                    className="w-full py-4 min-h-[48px] rounded-2xl bg-[#FF3030] hover:bg-[#E02424] text-white font-black text-sm sm:text-base shadow-xl shadow-red-950/50 transition-all hover:scale-[1.01] active:scale-98 flex items-center justify-center space-x-2 cursor-pointer uppercase tracking-wider"
                   >
                     {loading ? (
                       <RefreshCw className="w-5 h-5 animate-spin" />
@@ -3415,7 +3483,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
                     placeholder="Search services by name or #ID..."
                     value={serviceSearch}
                     onChange={(e) => setServiceSearch(e.target.value)}
-                    className={`w-full pl-10 pr-8 py-2.5 rounded-2xl text-xs font-bold focus:outline-none focus:border-[#FF3030] border ${
+                    className={`w-full pl-10 pr-8 py-2.5 min-h-[44px] rounded-2xl text-base sm:text-xs font-bold focus:outline-none focus:border-[#FF3030] border ${
                       isDarkMode
                         ? 'bg-[#141414] border-[#2A2A2A] text-white placeholder-gray-500'
                         : 'bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400'
