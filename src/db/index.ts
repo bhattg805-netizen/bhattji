@@ -164,6 +164,87 @@ function getValueForCol(r: any, target: { table?: string; col: string }): any {
   return null;
 }
 
+// Robust WHERE condition matcher for in-memory SQL execution
+function matchesWhere(row: any, queryText: string, norm: string, params: any[]): boolean {
+  if (!norm.includes('where')) return true;
+
+  // 1. Check for IN clause: e.g. "col" in ($1, $2, ...) or table."col" in ($1, $2, ...)
+  const inMatch = queryText.match(/(?:[a-zA-Z0-9_]+\.)?"?([a-zA-Z0-9_]+)"?\s+in\s*\(([^)]+)\)/i);
+  if (inMatch) {
+    const col = inMatch[1];
+    const placeholders = inMatch[2].match(/\$(\d+)/g) || [];
+    const targetValues = new Set(
+      placeholders
+        .map((ph) => {
+          const pIdx = parseInt(ph.slice(1), 10) - 1;
+          return pIdx >= 0 && pIdx < params.length ? params[pIdx] : null;
+        })
+        .filter((v) => v !== null && v !== undefined)
+    );
+
+    const val = getValueForCol(row, { col });
+    for (const tv of targetValues) {
+      if (val === tv || String(val) === String(tv) || Number(val) === Number(tv)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // 2. Check for EQUALS clause: e.g. "col" = $1 or table."col" = $1
+  const eqMatch = queryText.match(/(?:[a-zA-Z0-9_]+\.)?"?([a-zA-Z0-9_]+)"?\s*=\s*\$(\d+)/i);
+  if (eqMatch) {
+    const col = eqMatch[1];
+    const pIdx = parseInt(eqMatch[2], 10) - 1;
+    const targetVal = pIdx >= 0 && pIdx < params.length ? params[pIdx] : null;
+    const val = getValueForCol(row, { col });
+    return val === targetVal || String(val) === String(targetVal) || Number(val) === Number(targetVal);
+  }
+
+  // 3. Simple email or status match
+  if (norm.includes('email') && params.length > 0) {
+    const emailVal = String(params[0] || '').toLowerCase().trim();
+    return String(row.email || '').toLowerCase().trim() === emailVal;
+  }
+
+  return true;
+}
+
+// Function to apply SET updates to a record
+function applySetClause(record: any, queryText: string, params: any[]) {
+  const setMatch = queryText.match(/set\s+(.*?)(?:\s+where|$)/i);
+  if (setMatch) {
+    const setClause = setMatch[1];
+    const regex = /"?([a-zA-Z0-9_]+)"?\s*=\s*(?:\$(\d+)|([^\s,]+))/g;
+    let m: RegExpExecArray | null;
+    while ((m = regex.exec(setClause)) !== null) {
+      const col = m[1];
+      if (m[2]) {
+        const pIdx = parseInt(m[2], 10) - 1;
+        if (pIdx >= 0 && pIdx < params.length) {
+          const val = params[pIdx];
+          record[col] = val;
+          const camel = col.replace(/_([a-z])/g, (_, l) => l.toUpperCase());
+          record[camel] = val;
+        }
+      } else if (m[3]) {
+        if (m[3].toLowerCase() === 'null') {
+          record[col] = null;
+          const camel = col.replace(/_([a-z])/g, (_, l) => l.toUpperCase());
+          record[camel] = null;
+        } else if (m[3].includes('+')) {
+          const currentVal = Number(record[col]) || 0;
+          record[col] = currentVal + 1;
+          const camel = col.replace(/_([a-z])/g, (_, l) => l.toUpperCase());
+          record[camel] = currentVal + 1;
+        }
+      }
+    }
+  }
+  record.updatedAt = new Date();
+  record.updated_at = new Date();
+}
+
 // Robust In-Memory SQL Query Emulator
 export function executeInMemoryQuery(queryText: string, params: any[] = [], isArrayMode = false) {
   const norm = queryText.toLowerCase().trim();
@@ -197,12 +278,8 @@ export function executeInMemoryQuery(queryText: string, params: any[] = [], isAr
             (!o.providerOrderId || o.providerOrderId === '' || !o.provider_order_id || o.provider_order_id === '') &&
             String(o.status || '').toLowerCase() === targetStatus
         );
-      } else if (norm.includes('where') && (norm.includes('"id" = $') || norm.includes('id = $') || norm.includes('."id" = $'))) {
-        const idVal = Number(params[0]);
-        rows = rows.filter((o) => o.id === idVal);
-      } else if (norm.includes('where') && (norm.includes('user_id') || norm.includes('"userId"'))) {
-        const uidVal = Number(params[0]);
-        rows = rows.filter((o) => o.userId === uidVal || o.user_id === uidVal);
+      } else if (norm.includes('where')) {
+        rows = rows.filter((o) => matchesWhere(o, queryText, norm, params));
       }
 
       // Handle limit
@@ -222,20 +299,18 @@ export function executeInMemoryQuery(queryText: string, params: any[] = [], isAr
           category_icon: cat?.icon || s.categoryIcon || 'globe',
         };
       });
-      if (norm.includes('where') && (norm.includes('"id" = $') || norm.includes('id = $'))) {
-        const idVal = Number(params[0]);
-        rows = rows.filter((s) => s.id === idVal);
+      if (norm.includes('where')) {
+        rows = rows.filter((s) => matchesWhere(s, queryText, norm, params));
       }
     } else if (norm.includes('from "categories"') || norm.includes('from categories')) {
-      rows = [...memoryStore.categories];
+      rows = memoryStore.categories ? [...memoryStore.categories] : [];
+      if (norm.includes('where')) {
+        rows = rows.filter((c) => matchesWhere(c, queryText, norm, params));
+      }
     } else if (norm.includes('from "users"') || norm.includes('from users')) {
       rows = [...memoryStore.users];
-      if (norm.includes('email')) {
-        const emailVal = String(params[0] || '').toLowerCase().trim();
-        rows = rows.filter((u) => String(u.email || '').toLowerCase().trim() === emailVal);
-      } else if (norm.includes('"id" = $') || norm.includes('id = $')) {
-        const idVal = Number(params[0]);
-        rows = rows.filter((u) => u.id === idVal);
+      if (norm.includes('where')) {
+        rows = rows.filter((u) => matchesWhere(u, queryText, norm, params));
       }
     } else if (norm.includes('from "providers"') || norm.includes('from providers')) {
       rows = [...memoryStore.providers];
@@ -378,7 +453,7 @@ export function executeInMemoryQuery(queryText: string, params: any[] = [], isAr
     const tableName = tableMatch ? tableMatch[1] : '';
     const tableData = memoryStore[tableName] || [];
 
-    let updatedRecord: any = null;
+    let updatedRecords: any[] = [];
     if (tableName === 'settings' && norm.includes('where') && norm.includes('key')) {
       const targetKey = String(params[params.length - 1] || '').trim();
       const idx = tableData.findIndex((s) => s.key === targetKey);
@@ -386,7 +461,7 @@ export function executeInMemoryQuery(queryText: string, params: any[] = [], isAr
         tableData[idx].value = String(params[0] ?? '');
         tableData[idx].updatedAt = new Date();
         tableData[idx].updated_at = new Date();
-        updatedRecord = tableData[idx];
+        updatedRecords.push(tableData[idx]);
       } else {
         const newSetting = {
           id: nextEntityId++,
@@ -398,73 +473,37 @@ export function executeInMemoryQuery(queryText: string, params: any[] = [], isAr
           updated_at: new Date(),
         };
         tableData.push(newSetting);
-        updatedRecord = newSetting;
+        updatedRecords.push(newSetting);
       }
-    } else if (norm.includes('where')) {
-      let targetIdx = -1;
-      const whereIdMatch = queryText.match(/where\s+.*?"?id"?\s*=\s*\$(\d+)/i);
-      if (whereIdMatch) {
-        const idParamIdx = parseInt(whereIdMatch[1], 10) - 1;
-        const idVal = Number(params[idParamIdx]);
-        targetIdx = tableData.findIndex((r) => r.id === idVal);
-      } else if (norm.includes('email = $') || norm.includes('"email" = $')) {
-        const emailMatch = queryText.match(/where\s+.*?"?email"?\s*=\s*\$(\d+)/i);
-        const emailParamIdx = emailMatch ? parseInt(emailMatch[1], 10) - 1 : params.length - 1;
-        const emailVal = String(params[emailParamIdx] || '').toLowerCase().trim();
-        targetIdx = tableData.findIndex((r) => String(r.email || '').toLowerCase().trim() === emailVal);
-      } else if (norm.includes('id = $') || norm.includes('"id" = $')) {
-        const idVal = Number(params[params.length - 1]);
-        targetIdx = tableData.findIndex((r) => r.id === idVal);
-      }
-
-      if (targetIdx >= 0) {
-        const setMatch = queryText.match(/set\s+(.*?)(?:\s+where|$)/i);
-        if (setMatch) {
-          const setClause = setMatch[1];
-          const regex = /"?([a-zA-Z0-9_]+)"?\s*=\s*(?:\$(\d+)|([^\s,]+))/g;
-          let m: RegExpExecArray | null;
-          while ((m = regex.exec(setClause)) !== null) {
-            const col = m[1];
-            if (m[2]) {
-              const pIdx = parseInt(m[2], 10) - 1;
-              if (pIdx >= 0 && pIdx < params.length) {
-                const val = params[pIdx];
-                tableData[targetIdx][col] = val;
-                const camel = col.replace(/_([a-z])/g, (_, l) => l.toUpperCase());
-                tableData[targetIdx][camel] = val;
-              }
-            } else if (m[3] && m[3].includes('+')) {
-              const currentVal = Number(tableData[targetIdx][col]) || 0;
-              tableData[targetIdx][col] = currentVal + 1;
-              const camel = col.replace(/_([a-z])/g, (_, l) => l.toUpperCase());
-              tableData[targetIdx][camel] = currentVal + 1;
-            }
-          }
+    } else {
+      for (const row of tableData) {
+        if (matchesWhere(row, queryText, norm, params)) {
+          applySetClause(row, queryText, params);
+          updatedRecords.push(row);
         }
-        tableData[targetIdx].updatedAt = new Date();
-        tableData[targetIdx].updated_at = new Date();
-        updatedRecord = tableData[targetIdx];
       }
     }
 
     const selectedCols = extractSelectedColumns(queryText);
     let outputRows: any[] = [];
-    if (updatedRecord) {
+    if (updatedRecords.length > 0) {
       if (isArrayMode) {
         if (selectedCols.length > 0) {
-          outputRows = [selectedCols.map((c) => getValueForCol(updatedRecord, c))];
+          outputRows = updatedRecords.map((r) => selectedCols.map((c) => getValueForCol(r, c)));
         } else {
-          outputRows = [Object.values(updatedRecord)];
+          outputRows = updatedRecords.map((r) => Object.values(r));
         }
       } else {
         if (selectedCols.length > 0) {
-          const obj: any = {};
-          selectedCols.forEach((c) => {
-            obj[c.col] = getValueForCol(updatedRecord, c);
+          outputRows = updatedRecords.map((r) => {
+            const obj: any = {};
+            selectedCols.forEach((c) => {
+              obj[c.col] = getValueForCol(r, c);
+            });
+            return obj;
           });
-          outputRows = [obj];
         } else {
-          outputRows = [updatedRecord];
+          outputRows = updatedRecords;
         }
       }
     }
@@ -480,13 +519,25 @@ export function executeInMemoryQuery(queryText: string, params: any[] = [], isAr
   if (command === 'DELETE') {
     const tableMatch = norm.match(/from\s+"?([a-zA-Z0-9_]+)"?/);
     const tableName = tableMatch ? tableMatch[1] : '';
-    if (memoryStore[tableName] && norm.includes('where')) {
-      const idVal = Number(params[0]);
-      memoryStore[tableName] = memoryStore[tableName].filter((r) => r.id !== idVal);
+    let deletedCount = 0;
+
+    if (memoryStore[tableName]) {
+      if (!norm.includes('where')) {
+        // Clear entire table!
+        deletedCount = memoryStore[tableName].length;
+        memoryStore[tableName] = [];
+      } else {
+        const beforeCount = memoryStore[tableName].length;
+        memoryStore[tableName] = memoryStore[tableName].filter(
+          (row) => !matchesWhere(row, queryText, norm, params)
+        );
+        deletedCount = beforeCount - memoryStore[tableName].length;
+      }
     }
+
     return {
       command: 'DELETE',
-      rowCount: 1,
+      rowCount: deletedCount,
       rows: [],
       fields: [],
     };

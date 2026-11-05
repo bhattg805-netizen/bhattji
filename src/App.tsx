@@ -93,8 +93,12 @@ function AppContent() {
       // ignore
     }
     if (!active) {
-      // Re-sync public settings when switching from Admin to User view
+      // Re-sync public settings and catalog when switching from Admin to User view
       try {
+        localStorage.removeItem('youthsmm_cached_services');
+        localStorage.removeItem('youthsmm_cached_services_v2');
+        localStorage.removeItem('youthsmm_cached_categories');
+        window.dispatchEvent(new Event('youthsmm_catalog_updated'));
         const stored = localStorage.getItem('youthsmm_public_settings');
         if (stored) setPublicSettings(JSON.parse(stored));
       } catch (_) {}

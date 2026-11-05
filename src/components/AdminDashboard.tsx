@@ -1165,6 +1165,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ token, onGoToUse
     }
   };
 
+  // Notify user dashboard and clean cache on catalog changes
+  const notifyCatalogChanged = () => {
+    try {
+      localStorage.removeItem('youthsmm_cached_services');
+      localStorage.removeItem('youthsmm_cached_services_v2');
+      localStorage.removeItem('youthsmm_cached_categories');
+      window.dispatchEvent(new Event('youthsmm_catalog_updated'));
+    } catch (_) {}
+  };
+
   // Delete Service
   const handleDeleteService = async (serviceId: number) => {
     setLoading(true);
@@ -1176,6 +1186,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ token, onGoToUse
       if (res.ok) {
         showSuccess('Service deleted.');
         setServiceIdToDelete(null);
+        notifyCatalogChanged();
         fetchAdminData();
       } else {
         showError('Failed to delete service.');
@@ -1198,6 +1209,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ token, onGoToUse
       if (res.ok) {
         showSuccess('Category and all its services deleted successfully.');
         setCategoryIdToDelete(null);
+        notifyCatalogChanged();
         fetchAdminData();
       } else {
         showError('Failed to delete category.');
@@ -1220,6 +1232,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ token, onGoToUse
       });
       if (res.ok) {
         showSuccess('Entire catalog has been successfully cleared!');
+        notifyCatalogChanged();
         fetchAdminData();
       } else {
         showError('Failed to clear catalog.');
@@ -1248,6 +1261,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ token, onGoToUse
         showSuccess(`Successfully deleted ${selectedCategoryIds.length} selected categories.`);
         setSelectedCategoryIds([]);
         setShowBulkDeleteConfirm(false);
+        notifyCatalogChanged();
         fetchAdminData();
       } else {
         const errData = await res.json();
@@ -1278,6 +1292,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ token, onGoToUse
         showSuccess(`Successfully deleted ${data.count || selectedServiceIds.length} services.`);
         setSelectedServiceIds([]);
         setShowBulkDeleteServicesConfirm(false);
+        notifyCatalogChanged();
         fetchAdminData();
       } else {
         const errData = await res.json();

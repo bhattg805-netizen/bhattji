@@ -2748,15 +2748,10 @@ export function invalidateCatalogCache() {
   cachedServicesTimestamp = 0;
 }
 
-// Get User's Services (categorized)
+// Get User's Categories (real-time sync with database)
 router.get('/user/categories', requireAuth, async (req: AuthRequest, res) => {
   try {
-    res.setHeader('Cache-Control', 'public, max-age=15, stale-while-revalidate=60');
-    const now = Date.now();
-    if (cachedCategoriesList && (now - cachedCategoriesTimestamp < 15000)) {
-      return res.json(cachedCategoriesList);
-    }
-
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     const activeCategories = await db
       .select()
       .from(categories)
@@ -2764,21 +2759,17 @@ router.get('/user/categories', requireAuth, async (req: AuthRequest, res) => {
       .orderBy(categories.sortOrder);
 
     cachedCategoriesList = activeCategories;
-    cachedCategoriesTimestamp = now;
+    cachedCategoriesTimestamp = Date.now();
     res.json(activeCategories);
   } catch (error) {
     res.status(500).json({ error: 'Failed to retrieve categories.' });
   }
 });
 
+// Get User's Services (real-time sync with database)
 router.get('/user/services', requireAuth, async (req: AuthRequest, res) => {
   try {
-    res.setHeader('Cache-Control', 'public, max-age=15, stale-while-revalidate=60');
-    const now = Date.now();
-    if (cachedServicesList && (now - cachedServicesTimestamp < 15000)) {
-      return res.json(cachedServicesList);
-    }
-
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     const activeServices = await db
       .select({
         id: services.id,
@@ -2796,7 +2787,7 @@ router.get('/user/services', requireAuth, async (req: AuthRequest, res) => {
       .orderBy(services.id);
 
     cachedServicesList = activeServices;
-    cachedServicesTimestamp = now;
+    cachedServicesTimestamp = Date.now();
     res.json(activeServices);
   } catch (error) {
     res.status(500).json({ error: 'Failed to retrieve services.' });
@@ -5718,6 +5709,7 @@ router.post('/admin/categories', requireAdmin, async (req: AuthRequest, res) => 
       icon: icon || null,
     });
 
+    invalidateCatalogCache();
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: 'Failed to create category.' });
@@ -5740,6 +5732,7 @@ router.put('/admin/categories/:id', requireAdmin, async (req: AuthRequest, res) 
 
     await db.update(categories).set(updateData).where(eq(categories.id, catId));
 
+    invalidateCatalogCache();
     res.json({ success: true });
   } catch (error) {
     console.error('Failed to update category:', error);
@@ -6661,6 +6654,7 @@ router.post('/admin/categories/bulk-delete', requireAdmin, async (req: AuthReque
 
     const result = await safeDeleteCategories(catIds);
 
+    invalidateCatalogCache();
     await logActivity(req.user?.id || null, 'Bulk Delete Categories', `Bulk deleted ${result.deletedCount} category IDs: ${catIds.join(', ')}`, req.ip);
     res.json({ success: true, count: result.deletedCount });
   } catch (error: any) {
@@ -6682,6 +6676,7 @@ router.delete('/admin/categories/:id', requireAdmin, async (req: AuthRequest, re
       return res.status(500).json({ error: 'Failed to delete category.' });
     }
 
+    invalidateCatalogCache();
     await logActivity(req.user?.id || null, 'Delete Category', `Deleted category ID: ${catId}`, req.ip);
     res.json({ success: true });
   } catch (error: any) {
@@ -6705,6 +6700,7 @@ router.delete('/admin/clear-catalog', requireAdmin, async (req: AuthRequest, res
     // 4. Delete all categories
     await db.delete(categories);
 
+    invalidateCatalogCache();
     await logActivity(req.user?.id || null, 'Clear Catalog', 'Purged all categories and services from catalog (orders and spent history preserved)', req.ip);
     res.json({ success: true });
   } catch (error) {

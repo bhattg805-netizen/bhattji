@@ -432,9 +432,15 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
     window.addEventListener('youthsmm_settings_updated', handleUpdate);
     window.addEventListener('storage', handleUpdate);
 
+    const handleCatalogUpdate = () => {
+      fetchDashboardData();
+    };
+    window.addEventListener('youthsmm_catalog_updated', handleCatalogUpdate);
+
     return () => {
       window.removeEventListener('youthsmm_settings_updated', handleUpdate);
       window.removeEventListener('storage', handleUpdate);
+      window.removeEventListener('youthsmm_catalog_updated', handleCatalogUpdate);
     };
   }, []);
 
@@ -522,11 +528,11 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
 
       // Fast-load categories and services immediately & independently for sub-50ms appearance
       const loadCatalogFast = () => {
-        fetch('/api/user/categories', { headers })
+        fetch('/api/user/categories', { headers, cache: 'no-store' })
           .then(async res => {
             if (res.ok) {
               const data = await safeJson(res);
-              if (Array.isArray(data) && data.length > 0) {
+              if (Array.isArray(data)) {
                 setCategories(data);
                 try { localStorage.setItem('youthsmm_cached_categories', JSON.stringify(data)); } catch (_) {}
               }
@@ -534,7 +540,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
           })
           .catch(e => console.warn('Catalog categories fetch error:', e));
 
-        fetch('/api/user/services', { headers })
+        fetch('/api/user/services', { headers, cache: 'no-store' })
           .then(async res => {
             if (res.ok) {
               const data = await safeJson(res);
@@ -989,14 +995,8 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
     }
   };
 
-  // Default baseline preset categories for major platforms to prevent 0-category state
-  const DEFAULT_PLATFORM_CATEGORIES: Category[] = [
-    { id: 1, name: 'Instagram Followers', status: 'active', sortOrder: 1, icon: 'instagram', createdAt: '' },
-    { id: 2, name: 'Instagram Likes & Views', status: 'active', sortOrder: 2, icon: 'instagram', createdAt: '' },
-    { id: 3, name: 'Telegram Members & Channel', status: 'active', sortOrder: 3, icon: 'telegram', createdAt: '' },
-    { id: 4, name: 'YouTube Views & Subscribers', status: 'active', sortOrder: 4, icon: 'youtube', createdAt: '' },
-    { id: 5, name: 'Facebook Likes & Followers', status: 'active', sortOrder: 5, icon: 'facebook', createdAt: '' },
-  ];
+  // Baseline preset categories is empty so user panel is 100% clean when catalog is empty/deleted
+  const DEFAULT_PLATFORM_CATEGORIES: Category[] = [];
 
   // Helper to match text or tokens against selected platform with aliases (fb, insta, yt, etc.)
   const isMatchingPlatform = (text?: string | null, platformId?: string | null): boolean => {
@@ -1113,33 +1113,20 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
     });
   };
 
-  // Complete list of categories ensuring all active service categories (e.g. Facebook) exist
+  // Complete list of categories cleanly reflecting active categories and services from the database
   const allCategories = useMemo(() => {
     const list = [...categories];
-    // Baseline preset categories for major platforms to prevent 0-category state
-    DEFAULT_PLATFORM_CATEGORIES.forEach(p => {
-      const exists = list.some(c =>
-        String(c.id) === String(p.id) ||
-        c.name.trim().toLowerCase() === p.name.trim().toLowerCase() ||
-        (p.icon && c.icon === p.icon)
-      );
-      if (!exists) {
-        list.push(p);
-      }
-    });
-
     services.forEach(s => {
       const sCatId = s.categoryId ?? (s as any).category_id;
       const exists = list.some(c => String(c.id) === String(sCatId) || (s.categoryName && c.name.toLowerCase() === s.categoryName.toLowerCase()));
-      if (!exists && isServiceInPlatform(s, 'Facebook')) {
-        const catName = s.categoryName || 'Facebook Likes & Followers';
-        const newId = sCatId ? Number(sCatId) : 5;
+      if (!exists && sCatId) {
+        const catName = s.categoryName || `Category #${sCatId}`;
         list.push({
-          id: newId,
+          id: Number(sCatId),
           name: catName,
           status: 'active',
           sortOrder: list.length + 1,
-          icon: 'facebook',
+          icon: s.icon || 'globe',
           createdAt: new Date().toISOString(),
         });
       }
