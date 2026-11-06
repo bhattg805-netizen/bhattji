@@ -242,6 +242,19 @@ print(response.json())`,
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               className="w-full max-w-2xl bg-white dark:bg-[#0e1424] border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden shadow-2xl relative z-10 flex flex-col max-h-[85vh] text-left"
             >
+              {/* Breadcrumb Navigation */}
+              <nav aria-label="Breadcrumb" className="px-5 sm:px-6 pt-3 pb-2 flex items-center space-x-1.5 text-[11px] text-stone-500 font-medium border-b border-gray-100 dark:border-gray-800 bg-stone-50/60 dark:bg-stone-900/30">
+                <button type="button" onClick={() => { setShowBlogModal(false); setSelectedBlog(null); }} className="hover:text-red-600 transition-colors cursor-pointer font-semibold">Home</button>
+                <ChevronRight className="w-3 h-3 text-stone-400 shrink-0" />
+                <span className="text-stone-800 dark:text-stone-200 font-bold truncate">Blog</span>
+                {selectedBlog && (
+                  <>
+                    <ChevronRight className="w-3 h-3 text-stone-400 shrink-0" />
+                    <span className="text-red-600 font-bold truncate max-w-[200px]">{selectedBlog.title}</span>
+                  </>
+                )}
+              </nav>
+
               <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="w-9 h-9 rounded-xl bg-red-600/10 text-red-600 flex items-center justify-center">
@@ -348,6 +361,13 @@ print(response.json())`,
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               className="w-full max-w-3xl bg-white dark:bg-[#0e1424] border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden shadow-2xl relative z-10 flex flex-col max-h-[85vh] text-left"
             >
+              {/* Breadcrumb Navigation */}
+              <nav aria-label="Breadcrumb" className="px-5 sm:px-6 pt-3 pb-2 flex items-center space-x-1.5 text-[11px] text-stone-500 font-medium border-b border-gray-100 dark:border-gray-800 bg-stone-50/60 dark:bg-stone-900/30">
+                <button type="button" onClick={() => setShowApiModal(false)} className="hover:text-red-600 transition-colors cursor-pointer font-semibold">Home</button>
+                <ChevronRight className="w-3 h-3 text-stone-400 shrink-0" />
+                <span className="text-stone-800 dark:text-stone-200 font-bold truncate">API Documentation</span>
+              </nav>
+
               <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="w-9 h-9 rounded-xl bg-red-600 text-white flex items-center justify-center font-bold">
@@ -489,6 +509,13 @@ print(response.json())`,
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               className="w-full max-w-xl bg-white dark:bg-[#0e1424] border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden shadow-2xl relative z-10 p-6 text-left space-y-5"
             >
+              {/* Breadcrumb Navigation */}
+              <nav aria-label="Breadcrumb" className="flex items-center space-x-1.5 text-[11px] text-stone-500 font-medium">
+                <button type="button" onClick={() => setShowChildPanelsModal(false)} className="hover:text-teal-600 transition-colors cursor-pointer font-semibold">Home</button>
+                <ChevronRight className="w-3 h-3 text-stone-400 shrink-0" />
+                <span className="text-stone-800 dark:text-stone-200 font-bold truncate">Child Panels</span>
+              </nav>
+
               <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
                 <div className="flex items-center space-x-3">
                   <div className="w-9 h-9 rounded-xl bg-teal-500/10 text-teal-600 flex items-center justify-center">
@@ -577,6 +604,13 @@ print(response.json())`,
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               className="w-full max-w-xl bg-white dark:bg-[#0e1424] border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden shadow-2xl relative z-10 p-6 text-left space-y-5"
             >
+              {/* Breadcrumb Navigation */}
+              <nav aria-label="Breadcrumb" className="flex items-center space-x-1.5 text-[11px] text-stone-500 font-medium">
+                <button type="button" onClick={() => setShowAffiliatesModal(false)} className="hover:text-emerald-600 transition-colors cursor-pointer font-semibold">Home</button>
+                <ChevronRight className="w-3 h-3 text-stone-400 shrink-0" />
+                <span className="text-stone-800 dark:text-stone-200 font-bold truncate">Affiliate Program</span>
+              </nav>
+
               <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
                 <div className="flex items-center space-x-3">
                   <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
@@ -663,6 +697,13 @@ print(response.json())`,
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               className="w-full max-w-2xl bg-white dark:bg-[#0e1424] border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden shadow-2xl relative z-10 flex flex-col max-h-[85vh] text-left"
             >
+              {/* Breadcrumb Navigation */}
+              <nav aria-label="Breadcrumb" className="px-5 sm:px-6 pt-3 pb-2 flex items-center space-x-1.5 text-[11px] text-stone-500 font-medium border-b border-gray-100 dark:border-gray-800 bg-stone-50/60 dark:bg-stone-900/30">
+                <button type="button" onClick={() => setShowTermsModal(false)} className="hover:text-red-600 transition-colors cursor-pointer font-semibold">Home</button>
+                <ChevronRight className="w-3 h-3 text-stone-400 shrink-0" />
+                <span className="text-stone-800 dark:text-stone-200 font-bold truncate">Terms of Service</span>
+              </nav>
+
               <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="w-9 h-9 rounded-xl bg-red-600/10 text-red-600 flex items-center justify-center">
@@ -748,6 +789,13 @@ print(response.json())`,
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               className="w-full max-w-2xl bg-white dark:bg-[#0e1424] border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden shadow-2xl relative z-10 flex flex-col max-h-[85vh] text-left"
             >
+              {/* Breadcrumb Navigation */}
+              <nav aria-label="Breadcrumb" className="px-5 sm:px-6 pt-3 pb-2 flex items-center space-x-1.5 text-[11px] text-stone-500 font-medium border-b border-gray-100 dark:border-gray-800 bg-stone-50/60 dark:bg-stone-900/30">
+                <button type="button" onClick={() => setShowPrivacyModal(false)} className="hover:text-red-600 transition-colors cursor-pointer font-semibold">Home</button>
+                <ChevronRight className="w-3 h-3 text-stone-400 shrink-0" />
+                <span className="text-stone-800 dark:text-stone-200 font-bold truncate">Privacy Policy</span>
+              </nav>
+
               <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="w-9 h-9 rounded-xl bg-red-600/10 text-red-600 flex items-center justify-center">
@@ -825,6 +873,13 @@ print(response.json())`,
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               className="w-full max-w-md bg-white dark:bg-[#0e1424] border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden shadow-2xl relative z-10 p-6 text-left space-y-4"
             >
+              {/* Breadcrumb Navigation */}
+              <nav aria-label="Breadcrumb" className="flex items-center space-x-1.5 text-[11px] text-stone-500 font-medium">
+                <button type="button" onClick={() => setShowSupportModal(false)} className="hover:text-purple-600 transition-colors cursor-pointer font-semibold">Home</button>
+                <ChevronRight className="w-3 h-3 text-stone-400 shrink-0" />
+                <span className="text-stone-800 dark:text-stone-200 font-bold truncate">Support</span>
+              </nav>
+
               <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
                 <div className="flex items-center space-x-3">
                   <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center">
@@ -905,6 +960,13 @@ print(response.json())`,
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               className="w-full max-w-md bg-white dark:bg-[#0e1424] border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden shadow-2xl relative z-10 p-6 text-left space-y-4"
             >
+              {/* Breadcrumb Navigation */}
+              <nav aria-label="Breadcrumb" className="flex items-center space-x-1.5 text-[11px] text-stone-500 font-medium">
+                <button type="button" onClick={() => setShowContactModal(false)} className="hover:text-red-600 transition-colors cursor-pointer font-semibold">Home</button>
+                <ChevronRight className="w-3 h-3 text-stone-400 shrink-0" />
+                <span className="text-stone-800 dark:text-stone-200 font-bold truncate">Contact Us</span>
+              </nav>
+
               <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
                 <div className="flex items-center space-x-3">
                   <div className="w-9 h-9 rounded-xl bg-red-600/10 text-red-600 flex items-center justify-center">
@@ -981,6 +1043,13 @@ print(response.json())`,
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               className="w-full max-w-2xl bg-white dark:bg-[#0e1424] border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden shadow-2xl relative z-10 flex flex-col max-h-[90vh] text-left"
             >
+              {/* Breadcrumb Navigation */}
+              <nav aria-label="Breadcrumb" className="px-5 sm:px-6 pt-3 pb-2 flex items-center space-x-1.5 text-[11px] text-stone-500 font-medium border-b border-gray-100 dark:border-gray-800 bg-stone-50/60 dark:bg-stone-900/30">
+                <button type="button" onClick={() => setShowAboutModal(false)} className="hover:text-red-600 transition-colors cursor-pointer font-semibold">Home</button>
+                <ChevronRight className="w-3 h-3 text-stone-400 shrink-0" />
+                <span className="text-stone-800 dark:text-stone-200 font-bold truncate">About Us</span>
+              </nav>
+
               {/* Modal Header */}
               <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between shrink-0 bg-gradient-to-r from-red-600/5 via-transparent to-transparent">
                 <div className="flex items-center space-x-3.5">

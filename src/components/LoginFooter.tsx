@@ -260,37 +260,37 @@ export const LoginFooter: React.FC<LoginFooterProps> = ({
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-4">
           <p>© 2026 YouthSMM. All rights reserved.</p>
           <div className="flex items-center space-x-4 flex-wrap justify-center gap-y-2">
-            <button
-              type="button"
-              onClick={onOpenAboutUs}
+            <a
+              href="/about"
+              onClick={(e) => { e.preventDefault(); onOpenAboutUs(); }}
               className="hover:text-red-600 transition-colors cursor-pointer font-medium"
             >
               About Us
-            </button>
+            </a>
             <span>&middot;</span>
-            <button
-              type="button"
-              onClick={onOpenTerms}
+            <a
+              href="/terms"
+              onClick={(e) => { e.preventDefault(); onOpenTerms(); }}
               className="hover:text-red-600 transition-colors cursor-pointer"
             >
               Terms of Service
-            </button>
+            </a>
             <span>&middot;</span>
-            <button
-              type="button"
-              onClick={onOpenPrivacy}
+            <a
+              href="/privacy"
+              onClick={(e) => { e.preventDefault(); onOpenPrivacy(); }}
               className="hover:text-red-600 transition-colors cursor-pointer"
             >
               Privacy Policy
-            </button>
+            </a>
             <span>&middot;</span>
-            <button
-              type="button"
-              onClick={onOpenApi}
+            <a
+              href="/api-docs"
+              onClick={(e) => { e.preventDefault(); onOpenApi(); }}
               className="hover:text-red-600 transition-colors cursor-pointer"
             >
               API Docs
-            </button>
+            </a>
           </div>
         </div>
       </div>

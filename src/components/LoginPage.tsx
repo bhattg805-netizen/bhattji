@@ -35,7 +35,7 @@ import { LoginPlatformMarquee } from './LoginPlatformMarquee.tsx';
 const LoginModals = lazy(() =>
   import('./LoginModals.tsx').then((m) => ({ default: m.LoginModals }))
 );
-import { updateSeoMetadata, PAGE_SEO_REGISTRY } from '../utils/seo.ts';
+import { updateSeoMetadata, updateStructuredData, generateBreadcrumbSchema, PAGE_SEO_REGISTRY } from '../utils/seo.ts';
 
 interface LoginPageProps {
   onLogin?: () => void;
@@ -203,26 +203,37 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
     if (isAuthRoute || showForgotModal) {
       updateSeoMetadata(PAGE_SEO_REGISTRY.auth);
+      updateStructuredData(generateBreadcrumbSchema('Account', '/login'), 'youthsmm-breadcrumb-ldjson');
     } else if (showServicesModal) {
       updateSeoMetadata(PAGE_SEO_REGISTRY.services);
+      updateStructuredData(generateBreadcrumbSchema('Services', '/services'), 'youthsmm-breadcrumb-ldjson');
     } else if (showBlogModal) {
       updateSeoMetadata(PAGE_SEO_REGISTRY.blog);
+      updateStructuredData(generateBreadcrumbSchema('Blog', '/blog'), 'youthsmm-breadcrumb-ldjson');
     } else if (showAboutModal) {
       updateSeoMetadata(PAGE_SEO_REGISTRY.about);
+      updateStructuredData(generateBreadcrumbSchema('About Us', '/about'), 'youthsmm-breadcrumb-ldjson');
     } else if (showTermsModal) {
       updateSeoMetadata(PAGE_SEO_REGISTRY.terms);
+      updateStructuredData(generateBreadcrumbSchema('Terms of Service', '/terms'), 'youthsmm-breadcrumb-ldjson');
     } else if (showPrivacyModal) {
       updateSeoMetadata(PAGE_SEO_REGISTRY.privacy);
+      updateStructuredData(generateBreadcrumbSchema('Privacy Policy', '/privacy'), 'youthsmm-breadcrumb-ldjson');
     } else if (showContactModal || showSupportModal) {
       updateSeoMetadata(PAGE_SEO_REGISTRY.contact);
+      updateStructuredData(generateBreadcrumbSchema('Contact Us', '/contact'), 'youthsmm-breadcrumb-ldjson');
     } else if (showApiModal) {
       updateSeoMetadata(PAGE_SEO_REGISTRY['api-docs']);
+      updateStructuredData(generateBreadcrumbSchema('API Documentation', '/api-docs'), 'youthsmm-breadcrumb-ldjson');
     } else if (showChildPanelsModal) {
       updateSeoMetadata(PAGE_SEO_REGISTRY['child-panels']);
+      updateStructuredData(generateBreadcrumbSchema('Child Panels', '/child-panels'), 'youthsmm-breadcrumb-ldjson');
     } else if (showAffiliatesModal) {
       updateSeoMetadata(PAGE_SEO_REGISTRY.affiliates);
+      updateStructuredData(generateBreadcrumbSchema('Affiliates', '/affiliates'), 'youthsmm-breadcrumb-ldjson');
     } else {
       updateSeoMetadata(PAGE_SEO_REGISTRY.home);
+      updateStructuredData(null, 'youthsmm-breadcrumb-ldjson');
     }
   }, [
     showForgotModal,
@@ -364,32 +375,92 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       {/* Top Floating Sticky Pill Navbar */}
       <header className="sticky top-2 sm:top-4 w-full max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 z-30 transition-all">
         <div className="bg-[#FFFDF9]/95 backdrop-blur-md border border-[#EAE3D2] shadow-sm hover:shadow-md rounded-2xl sm:rounded-3xl px-4 sm:px-5 py-2.5 sm:py-3 flex items-center justify-between">
-          {/* Brand Logo */}
-          <div className="flex items-center space-x-2.5 cursor-pointer">
+          {/* Brand Logo & Name */}
+          <a
+            href="/"
+            onClick={(e) => {
+              if (window.location.pathname === '/' && !showServicesModal && !showAboutModal && !showBlogModal && !showApiModal && !showChildPanelsModal && !showAffiliatesModal && !showTermsModal && !showPrivacyModal && !showContactModal) {
+                // Already at root
+              } else {
+                e.preventDefault();
+                setShowServicesModal(false);
+                setShowAboutModal(false);
+                setShowBlogModal(false);
+                setShowApiModal(false);
+                setShowChildPanelsModal(false);
+                setShowAffiliatesModal(false);
+                setShowTermsModal(false);
+                setShowPrivacyModal(false);
+                setShowContactModal(false);
+                window.history.replaceState(null, '', '/');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+            }}
+            aria-label="YouthSMM Homepage"
+            className="flex items-center space-x-2.5 cursor-pointer select-none"
+          >
             {websiteLogo ? (
               <img src={websiteLogo} alt={websiteName || 'youthsmm'} className="h-7 sm:h-8 max-w-[130px] sm:max-w-[150px] object-contain" referrerPolicy="no-referrer" />
             ) : (
               <AnimatedLogo size="md" showText={true} />
             )}
-          </div>
+          </a>
 
-          {/* Header Action Links & Hamburger Menu */}
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            <button
-              onClick={() => setShowServicesModal(true)}
+          {/* Semantic Navigation Links & Menu */}
+          <nav aria-label="Main Navigation" className="flex items-center space-x-1.5 sm:space-x-2">
+            <a
+              href="/services"
+              onClick={(e) => { e.preventDefault(); setShowServicesModal(true); }}
               aria-label="Browse all services catalog"
-              className="hidden sm:inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-stone-700 hover:text-red-600 hover:bg-[#F5F0E4] border border-[#EAE3D2] transition-all cursor-pointer shadow-xs active:scale-95"
+              className="hidden sm:inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-stone-700 hover:text-red-600 hover:bg-[#F5F0E4] border border-[#EAE3D2] transition-all cursor-pointer shadow-xs active:scale-95"
             >
               <Eye className="w-3.5 h-3.5 text-red-500" />
               <span>Services</span>
-            </button>
+            </a>
+
+            <a
+              href="/about"
+              onClick={(e) => { e.preventDefault(); setShowAboutModal(true); }}
+              aria-label="About YouthSMM"
+              className="hidden md:inline-flex items-center px-3 py-2 rounded-xl text-xs font-semibold text-stone-700 hover:text-red-600 hover:bg-[#F5F0E4] border border-[#EAE3D2] transition-all cursor-pointer shadow-xs active:scale-95"
+            >
+              <span>About Us</span>
+            </a>
+
+            <a
+              href="/api-docs"
+              onClick={(e) => { e.preventDefault(); setShowApiModal(true); }}
+              aria-label="API Documentation"
+              className="hidden md:inline-flex items-center px-3 py-2 rounded-xl text-xs font-semibold text-stone-700 hover:text-red-600 hover:bg-[#F5F0E4] border border-[#EAE3D2] transition-all cursor-pointer shadow-xs active:scale-95"
+            >
+              <span>API</span>
+            </a>
+
+            <a
+              href="/blog"
+              onClick={(e) => { e.preventDefault(); setShowBlogModal(true); }}
+              aria-label="Blog & Marketing Guides"
+              className="hidden lg:inline-flex items-center px-3 py-2 rounded-xl text-xs font-semibold text-stone-700 hover:text-red-600 hover:bg-[#F5F0E4] border border-[#EAE3D2] transition-all cursor-pointer shadow-xs active:scale-95"
+            >
+              <span>Blog</span>
+            </a>
+
+            <a
+              href="/faq"
+              onClick={(e) => { e.preventDefault(); handleScrollToFaq(); }}
+              aria-label="Frequently Asked Questions"
+              className="hidden sm:inline-flex items-center space-x-1 px-3 py-2 rounded-xl text-xs font-semibold text-stone-700 hover:text-red-600 hover:bg-[#F5F0E4] border border-[#EAE3D2] transition-all cursor-pointer shadow-xs active:scale-95"
+            >
+              <HelpCircle className="w-3.5 h-3.5 text-stone-500" />
+              <span>FAQ</span>
+            </a>
 
             <a
               href="https://t.me/securesmmtursted"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Visit Telegram Support Channel (opens in new tab)"
-              className="hidden sm:inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-stone-700 hover:text-sky-600 hover:bg-[#F5F0E4] border border-[#EAE3D2] transition-all shadow-xs active:scale-95"
+              className="hidden sm:inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-stone-700 hover:text-sky-600 hover:bg-[#F5F0E4] border border-[#EAE3D2] transition-all shadow-xs active:scale-95"
             >
               <Send className="w-3.5 h-3.5 text-sky-500" />
               <span>Telegram</span>
@@ -397,6 +468,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
             {/* Hamburger Menu Toggle */}
             <button
+              type="button"
               onClick={() => setShowMenuDrawer(!showMenuDrawer)}
               aria-expanded={showMenuDrawer}
               aria-label={showMenuDrawer ? 'Close navigation menu' : 'Open navigation menu'}
@@ -404,7 +476,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
             >
               {showMenuDrawer ? <X className="w-5 h-5 text-stone-800" /> : <Menu className="w-5 h-5 text-stone-800" />}
             </button>
-          </div>
+          </nav>
         </div>
 
         {/* Mobile Backdrop */}
@@ -422,12 +494,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="mt-2 bg-[#FFFDF9]/95 backdrop-blur-lg border border-[#EAE3D2] rounded-2xl shadow-2xl p-3 flex flex-col space-y-1.5 text-sm font-medium z-40 relative"
+              className="mt-2 bg-[#FFFDF9]/95 backdrop-blur-lg border border-[#EAE3D2] rounded-2xl shadow-2xl p-3 flex flex-col space-y-1 text-sm font-medium z-40 relative"
             >
               {/* Quick Auth Switchers */}
               <div className="grid grid-cols-2 gap-2 pb-2 border-b border-[#EAE3D2]">
-                <button
-                  onClick={() => {
+                <a
+                  href="/login"
+                  onClick={(e) => {
+                    e.preventDefault();
                     setAuthMode('signin');
                     setShowMenuDrawer(false);
                     document.getElementById('auth-form-card')?.scrollIntoView({ behavior: 'smooth' });
@@ -436,9 +510,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                 >
                   <LogIn className="w-3.5 h-3.5 text-red-500" />
                   <span>Sign In</span>
-                </button>
-                <button
-                  onClick={() => {
+                </a>
+                <a
+                  href="/register"
+                  onClick={(e) => {
+                    e.preventDefault();
                     setAuthMode('register');
                     setShowMenuDrawer(false);
                     document.getElementById('auth-form-card')?.scrollIntoView({ behavior: 'smooth' });
@@ -447,11 +523,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                 >
                   <UserPlus className="w-3.5 h-3.5" />
                   <span>Create Account</span>
-                </button>
+                </a>
               </div>
 
-              <button
-                onClick={() => {
+              <a
+                href="/services"
+                onClick={(e) => {
+                  e.preventDefault();
                   setShowServicesModal(true);
                   setShowMenuDrawer(false);
                 }}
@@ -459,9 +537,51 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               >
                 <Eye className="w-4 h-4 text-red-500" />
                 <span>Browse Services List</span>
-              </button>
-              <button
-                onClick={() => {
+              </a>
+
+              <a
+                href="/about"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowAboutModal(true);
+                  setShowMenuDrawer(false);
+                }}
+                className="flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl hover:bg-[#F5F0E4] hover:text-red-600 text-stone-700 transition-all text-left cursor-pointer min-h-[44px]"
+              >
+                <Users className="w-4 h-4 text-purple-500" />
+                <span>About Us</span>
+              </a>
+
+              <a
+                href="/api-docs"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowApiModal(true);
+                  setShowMenuDrawer(false);
+                }}
+                className="flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl hover:bg-[#F5F0E4] hover:text-red-600 text-stone-700 transition-all text-left cursor-pointer min-h-[44px]"
+              >
+                <Zap className="w-4 h-4 text-amber-500" />
+                <span>API Documentation</span>
+              </a>
+
+              <a
+                href="/blog"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowBlogModal(true);
+                  setShowMenuDrawer(false);
+                }}
+                className="flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl hover:bg-[#F5F0E4] hover:text-red-600 text-stone-700 transition-all text-left cursor-pointer min-h-[44px]"
+              >
+                <FileText className="w-4 h-4 text-rose-500" />
+                <span>Growth Blog & Insights</span>
+              </a>
+
+              <a
+                href="/faq"
+                onClick={(e) => {
+                  e.preventDefault();
                   setShowMenuDrawer(false);
                   handleScrollToFaq();
                 }}
@@ -469,7 +589,21 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               >
                 <HelpCircle className="w-4 h-4 text-emerald-500" />
                 <span>Frequently Asked Questions</span>
-              </button>
+              </a>
+
+              <a
+                href="/contact"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowContactModal(true);
+                  setShowMenuDrawer(false);
+                }}
+                className="flex items-center space-x-2.5 px-3.5 py-2.5 rounded-xl hover:bg-[#F5F0E4] hover:text-red-600 text-stone-700 transition-all text-left cursor-pointer min-h-[44px]"
+              >
+                <Send className="w-4 h-4 text-red-500" />
+                <span>24/7 Customer Support</span>
+              </a>
+
               <a
                 href="https://t.me/securesmmtursted"
                 target="_blank"
@@ -479,7 +613,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                 <Send className="w-4 h-4 text-sky-500" />
                 <span>Telegram Support Channel</span>
               </a>
+
               <button
+                type="button"
                 onClick={() => {
                   setShowForgotModal(true);
                   setShowMenuDrawer(false);
